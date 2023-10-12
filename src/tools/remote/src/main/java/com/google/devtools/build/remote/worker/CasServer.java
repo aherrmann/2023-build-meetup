@@ -16,23 +16,16 @@ package com.google.devtools.build.remote.worker;
 
 import static com.google.devtools.build.lib.remote.util.Utils.getFromFuture;
 
-import build.bazel.remote.execution.v2.BatchUpdateBlobsRequest;
-import build.bazel.remote.execution.v2.BatchUpdateBlobsResponse;
+import build.bazel.remote.execution.v2.*;
 import build.bazel.remote.execution.v2.ContentAddressableStorageGrpc.ContentAddressableStorageImplBase;
-import build.bazel.remote.execution.v2.Digest;
-import build.bazel.remote.execution.v2.Directory;
-import build.bazel.remote.execution.v2.DirectoryNode;
-import build.bazel.remote.execution.v2.FindMissingBlobsRequest;
-import build.bazel.remote.execution.v2.FindMissingBlobsResponse;
-import build.bazel.remote.execution.v2.GetTreeRequest;
-import build.bazel.remote.execution.v2.GetTreeResponse;
-import build.bazel.remote.execution.v2.RequestMetadata;
 import com.google.common.flogger.GoogleLogger;
 import com.google.devtools.build.lib.remote.common.CacheNotFoundException;
 import com.google.devtools.build.lib.remote.common.RemoteActionExecutionContext;
 import com.google.devtools.build.lib.remote.util.TracingMetadataUtils;
+import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.rpc.Code;
+import com.google.rpc.Status;
 import io.grpc.stub.StreamObserver;
 import java.io.IOException;
 import java.util.ArrayDeque;
@@ -95,6 +88,36 @@ final class CasServer extends ContentAddressableStorageImplBase {
         resp.setStatus(StatusUtils.internalErrorStatus(e));
       }
     }
+    responseObserver.onNext(batchResponse.build());
+    responseObserver.onCompleted();
+  }
+
+  @Override
+  public void batchReadBlobs(BatchReadBlobsRequest request, StreamObserver<BatchReadBlobsResponse> responseObserver) {
+    RequestMetadata meta = TracingMetadataUtils.fromCurrentContext();
+    RemoteActionExecutionContext context = RemoteActionExecutionContext.create(meta);
+
+    BatchReadBlobsResponse.Builder batchResponse = BatchReadBlobsResponse.newBuilder();
+
+    for (Digest digest : request.getDigestsList()) {
+      BatchReadBlobsResponse.Response.Builder digestResponse = batchResponse.addResponsesBuilder();
+      digestResponse.setDigest(digest);
+      try {
+        digestResponse.setData(ByteString.copyFrom(getFromFuture(cache.downloadBlob(context, digest))));
+      } catch (CacheNotFoundException e) {
+        digestResponse.setStatus(StatusUtils.notFoundStatus(digest));
+        continue;
+      } catch (InterruptedException e) {
+        responseObserver.onError(StatusUtils.interruptedError(digest));
+        return;
+      } catch (Exception e) {
+        logger.atWarning().withCause(e).log("Read request failed");
+        responseObserver.onError(StatusUtils.internalError(e));
+        return;
+      }
+      digestResponse.getStatusBuilder().setCode(Code.OK.getNumber());
+    }
+
     responseObserver.onNext(batchResponse.build());
     responseObserver.onCompleted();
   }
