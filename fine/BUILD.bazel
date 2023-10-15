@@ -1,0 +1,51 @@
+load("@rules_haskell//haskell:defs.bzl", "haskell_binary", "haskell_toolchain_library")
+load("@rules_haskell//haskell/experimental:defs.bzl", "haskell_module")
+
+haskell_toolchain_library(name = "base")
+
+haskell_module(
+    name = "Main",
+    src = "Main.hs",
+    deps = [
+        ":Say",
+        ":Message",
+    ],
+)
+
+haskell_module(
+    name = "Say",
+    src = "Say.hs",
+)
+
+haskell_module(
+    name = "Message",
+    src = "Message.hs",
+    deps = [
+        ":Hello",
+        ":Reykjavik",
+    ],
+)
+
+haskell_module(
+    name = "Hello",
+    src = "Hello.hs",
+)
+
+haskell_module(
+    name = "Reykjavik",
+    src = "Reykjavik.hs",
+)
+
+haskell_binary(
+    name = "hello",
+    modules = [
+        ":Main",
+        ":Say",
+        ":Message",
+        ":Hello",
+        ":Reykjavik",
+    ],
+    deps = [
+        ":base",
+    ],
+)
