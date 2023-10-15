@@ -7,5 +7,5 @@ cxx_binary(
 cxx_library(
     name = "lib",
     srcs = ["lib.cc"],
-    exported_headers = ["lib.h"],
+    # exported_headers = ["lib.h"],
 )
