@@ -1,1 +1,4 @@
 common --enable_bzlmod
+
+build --remote_cache=grpc://localhost:7070
+build --remote_executor=grpc://localhost:7070
