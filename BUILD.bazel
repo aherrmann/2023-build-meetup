@@ -7,5 +7,5 @@ cc_binary(
 cc_library(
     name = "lib",
     srcs = ["lib.cc"],
-    hdrs = ["lib.h"],
+    # hdrs = ["lib.h"],
 )
