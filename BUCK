@@ -1,7 +1,11 @@
-# A list of available rules and their signatures can be found here: https://buck2.build/docs/api/rules/
+cxx_binary(
+    name = "hello",
+    srcs = ["main.cc"],
+    deps = [":lib"],
+)
 
-genrule(
-    name = "hello_world",
-    out = "out.txt",
-    cmd = "echo BUILT BY BUCK2> $OUT",
+cxx_library(
+    name = "lib",
+    srcs = ["lib.cc"],
+    exported_headers = ["lib.h"],
 )
