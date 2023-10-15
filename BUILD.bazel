@@ -1,0 +1,11 @@
+cc_binary(
+    name = "hello",
+    srcs = ["main.cc"],
+    deps = [":lib"],
+)
+
+cc_library(
+    name = "lib",
+    srcs = ["lib.cc"],
+    hdrs = ["lib.h"],
+)
