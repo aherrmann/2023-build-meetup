@@ -1,0 +1,7 @@
+load(":defs.bzl", "remote_execution_platform")
+
+remote_execution_platform(
+    name = "remote-x86_64-linux",
+    cpu_configuration = "prelude//cpu:x86_64",
+    os_configuration = "prelude//os:linux",
+)

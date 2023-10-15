@@ -14,3 +14,15 @@ buck = none
 
 [parser]
 target_platform_detector_spec = target:root//...->prelude//platforms:default
+
+[buck2]
+digest_algorithms = SHA256
+
+[buck2_re_client]
+engine_address       = grpc://localhost:7070
+action_cache_address = grpc://localhost:7070
+cas_address          = grpc://localhost:7070
+tls                  = false
+
+[build]
+execution_platforms = root//platforms:remote-x86_64-linux
