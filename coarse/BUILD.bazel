@@ -1,0 +1,17 @@
+load("@rules_haskell//haskell:defs.bzl", "haskell_binary", "haskell_toolchain_library")
+
+haskell_toolchain_library(name = "base")
+
+haskell_binary(
+    name = "hello",
+    srcs = [
+        "Main.hs",
+        "Say.hs",
+        "Message.hs",
+        "Hello.hs",
+        "Reykjavik.hs",
+    ],
+    deps = [
+        ":base",
+    ],
+)
