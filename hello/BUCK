@@ -1,0 +1,12 @@
+load("//rules/haskell:defs.bzl", "haskell_binary")
+
+haskell_binary(
+    name = "hello",
+    srcs = [
+        "Hello.hs",
+        "Main.hs",
+        "Message.hs",
+        "Reykjavik.hs",
+        "Say.hs",
+    ],
+)
